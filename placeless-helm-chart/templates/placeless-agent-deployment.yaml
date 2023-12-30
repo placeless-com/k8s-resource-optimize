@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-cluster-agent
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      application: {{ .Release.Name }}-cluster-agent
+  template:
+    metadata:
+      labels:
+        application: {{ .Release.Name }}-cluster-agent
+    spec:
+      serviceAccountName: {{ .Release.Name }}-cluster-agent-sa
+      containers:
+      - name: {{ .Release.Name }}-agent
+        image: {{ .Values.agent.image.name }}:{{ .Values.agent.image.tag }}
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}
+        env:
+          - name: METRICS_FOLDER
+            value: "/tmp/placeless_metrics"
+        volumeMounts:
+          - mountPath: /tmp/placeless_metrics
+            name: cache-volume
+      volumes:
+            - name: cache-volume
+              emptyDir:
+                sizeLimit: 500Mi

@@ -1,0 +1,7 @@
+boto3==1.23.5
+invoke==1.7.1
+mysql-connector==2.2.9
+numpy
+pmdarima
+statsmodels
+pytz==2022.1

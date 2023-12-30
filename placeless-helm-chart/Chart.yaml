@@ -1,0 +1,12 @@
+apiVersion: v2
+name: k8s-resource-optimize
+description: Placeless k8s-resource-optimize is an ML based automatic Kubernetes pod resources optimizer
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: mysql
+    version: "^8.0.32"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: mysql.enabled

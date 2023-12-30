@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-ml-predict
+spec:
+  schedule: "*/50 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          serviceAccountName: {{ .Release.Name }}-ml-account
+          containers:
+          - name: {{ .Release.Name }}-ml-predict
+            image: {{ .Values.mlJobs.image.name }}:{{ .Values.mlJobs.image.tag }}
+            envFrom:
+              - configMapRef:
+                  name: {{ .Release.Name }}
+            imagePullPolicy: IfNotPresent
+            args: ["predict"]
+          restartPolicy: Never

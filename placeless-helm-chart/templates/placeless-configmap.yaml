@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+data:
+  PLACELESS_S3_BUCKET: {{ .Values.s3.bucketName  | quote }}
+  PLACELESS_S3_BUCKET_REGION: {{ .Values.s3.region  | quote }}
+  {{- if .Values.mysql.enabled }}
+  PLACELESS_MYSQL_USERNAME: {{ .Values.mysql.auth.username  | quote }}
+  PLACELESS_MYSQL_PASSWORD: {{ .Values.mysql.auth.password  | quote }}
+  PLACELESS_MYSQL_HOSTNAME: {{ printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" | quote }}
+  PLACELESS_MYSQL_DB: {{ .Values.mysql.auth.database | quote }}
+  PLACELESS_MYSQL_PORT: {{ .Values.mysql.primary.service.ports.mysql | quote }}
+  {{- else }}
+  PLACELESS_MYSQL_USERNAME: {{ .Values.externalMySQL.username | quote }}
+  PLACELESS_MYSQL_PASSWORD: {{ .Values.externalMySQL.password | quote }}
+  PLACELESS_MYSQL_HOSTNAME: {{ .Values.externalMySQL.hostname | quote }}
+  PLACELESS_MYSQL_DB: {{ .Values.externalMySQL.database | quote }}
+  PLACELESS_MYSQL_PORT: {{ .Values.externalMySQL.port | quote }}
+  {{- end }}

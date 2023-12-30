@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-streamlit-view
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      application: {{ .Release.Name }}-streamlit-view
+  template:
+    metadata:
+      labels:
+        application: {{ .Release.Name }}-streamlit-view
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-controller
+        image: {{ .Values.streamlitView.image.name }}:{{ .Values.controller.image.tag }}
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-controller
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      application: {{ .Release.Name }}-controller
+  template:
+    metadata:
+      labels:
+        application: {{ .Release.Name }}-controller
+    spec:
+      serviceAccountName: {{ .Release.Name }}-controller-sa
+      containers:
+      - name: {{ .Release.Name }}-controller
+        image: {{ .Values.controller.image.name }}:{{ .Values.controller.image.tag }}
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}

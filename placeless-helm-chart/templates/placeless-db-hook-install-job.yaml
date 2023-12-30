@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-install"
+  labels:
+    app.kubernetes.io/component: install
+  annotations:
+    # This is what defines this resource as a hook
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  ttlSecondsAfterFinished: {{ .Values.hookInstallJob.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      {{- if .Values.hookInstallJob.podAnnotations }}
+      annotations:
+      {{ toYaml .Values.hookInstallJob.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: {{ .Chart.Name }}-server
+        image: {{ .Values.hookInstallJob.image.name }}:{{ .Values.hookInstallJob.image.tag }}
+        imagePullPolicy: Always
+        envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}
+        resources:
+{{ toYaml .Values.hookInstallJob.resources | indent 10 }}
+    {{- with .Values.hookInstallJob.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.hookInstallJob.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.hookInstallJob.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

@@ -1,0 +1,33 @@
+s3:
+  bucketName: "bucket-name"
+  region: "us-east-1"
+  serviceAccount:
+    create: true
+    roleArn: "arn:aws:iam::111111111111:role/role-name"
+
+controller:
+  image:
+    name: "public.ecr.aws/k6h2e2u3/placeless-controller"
+    tag: "0.0.2"
+
+mlJobs:
+  image:
+    name: "public.ecr.aws/k6h2e2u3/placeless-ml-jobs"
+    tag: "0.0.7"
+
+mysql:
+  enabled: true
+  auth:
+    username: placeless
+    password: "Aa123456"
+    createDatabase: true
+    database: "placeless"
+  primary:
+    service:
+      type: ClusterIP
+      ports:
+        mysql: 3306
+    persistence:
+      enabled: true
+      size: 10Gi
+

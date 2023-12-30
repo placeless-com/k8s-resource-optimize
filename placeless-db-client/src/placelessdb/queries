@@ -1,0 +1,66 @@
+
+CREATE TABLE  IF NOT exists Workload(
+ workload_id  VARCHAR(24) NOT NULL,
+ creation_TS float(5)  NOT NULL,
+ creation_Date DATETIME(5) NOT NULL,
+ CPU_limit dec(64,30), 
+ memory_limit dec(64,30) ,
+ CPU_request dec(64,30) NOT NULL,
+ memory_request dec(64,30) NOT NULL,
+ AWS_FT varchar(100),
+ traied bool,
+ last_train_TS float,
+ PRIMARY KEY (worload_id),
+ FOREIGN KEY(AWS_FT) REFERENCES FT_Groups (FT) ON DELETE CASCADE
+);
+                
+CREATE TABLE IF NOT exists WorkloadUsagAvg(
+ sampel_TS float(5) NOT NULL,
+ sampel_date DATETIME (5) NOT NULL,
+ cpu dec(64,30) NOT NULL,
+ memory dec(64,30) NOT NULL,
+id varchar(25) NOT NULL,
+ PRIMARY KEY (sampel_TS, id),
+ FOREIGN KEY (id) REFERENCES Workload(Workload_id) ON update NO action ON delete cascade
+);
+
+CREATE TABLE  IF NOT exists Residuals(
+batch_TS float(5) NOT NULL,
+batch_date DATETIME (5) NOT NULL,
+cpu_MSE dec(64,30) NOT NULL,
+memory_MSE dec(64,30) NOT NULL,
+id varchar(25) NOT NULL,
+PRIMARY KEY (batch_TS, id),
+FOREIGN KEY (id) REFERENCES Workload(Workload_id)  ON update NO action ON delete cascade
+);
+CREATE TABLE IF NOT exists Raw_Usage(
+ TS float(5) NOT NULL,
+ date DATETIME (5) NOT NULL,
+ cpu dec(64,30) NOT NULL,
+ memory dec(64,30) NOT NULL,
+ id varchar(25) NOT NULL,
+ used bool,
+ PRIMARY KEY (TS, id),
+ FOREIGN KEY (id) REFERENCES Workload(workload_id) ON update NO action ON delete cascade
+);
+
+CREATE TABLE IF NOT EXISTS Predictions(
+worklaod_id varchar(25) NOT NULL,
+cpu_pred float,
+mem_pred float,
+prdicted_date DATETIME(5) NOT NULL,
+pridicted_TS float NOT NULL,
+PRIMARY KEY (worklaod_id,pridicted_TS),
+FOREIGN KEY (worklaod_id) REFERENCES Worklaod(worklaod_id) ON update NO action ON delete cascade
+
+
+SELECT
+    id
+FROM(
+    SELECT
+        WorkloadUsagAvg.id , COUNT(*) AS num_of_recs
+    FROM
+        WorkloadUsagAvg JOIN Workload ON WorkloadUsagAvg.id = Workload.workload_id
+    GROUP BY id
+    HAVING num_of_recs > 75 and Workload.traied is False
+    )

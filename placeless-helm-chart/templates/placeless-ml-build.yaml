@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-ml-build
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          containers:
+          - name: {{ .Release.Name }}-ml-build
+            image: {{ .Values.mlJobs.image.name }}:{{ .Values.mlJobs.image.tag }}
+            envFrom:
+              - configMapRef:
+                  name: {{ .Release.Name }}
+            imagePullPolicy: IfNotPresent
+            args: ["build","calculate-residuals","retrain"]
+          restartPolicy: Never
+          serviceAccountName: {{ .Release.Name }}-ml-account

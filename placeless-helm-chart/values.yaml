@@ -1,0 +1,107 @@
+# S3 bucket details to store ML objects
+s3:
+  # s3.bucketName -- The name of the S3 bucket
+  bucketName: ""
+  # s3.region -- The region of the S3 bucket
+  region: ""
+  serviceAccount:
+    # s3.serviceAccount.create -- Specifies whether a service account should be created
+    create: true
+    # s3.serviceAccount.roleArn -- role to assign to service accounts (should have r+w access to the bucket)
+    roleArn: ""
+
+# Configuration values for the agent
+agent:
+  image:
+    name: "public.ecr.aws/k6h2e2u3/placeless-cluster-agent"
+    tag:  "latest"
+
+# Configuration values for the controller
+controller:
+  image:
+    name: "public.ecr.aws/k6h2e2u3/placeless-controller"
+    tag: "latest"
+
+# Configuration values for the ML jobs
+mlJobs:
+  image:
+    name: "public.ecr.aws/k6h2e2u3/placeless-ml-jobs"
+    tag: "latest"
+
+# Configuration values for the streamlitView
+streamlitView:
+  image:
+    name: "public.ecr.aws/k6h2e2u3/placeless-streamlit-view"
+    tag: "latest"
+
+# Configuration values for installation job
+hookInstallJob:
+  image:
+    name: "public.ecr.aws/k6h2e2u3/placeless-install-job"
+    tag: "latest"
+  # hookInstallJob.ttlSecondsAfterFinished -- ttl for install job
+  ttlSecondsAfterFinished: 30
+  # hookInstallJob.resources -- Job worker resource requests and limits
+  resources:
+  # hookInstallJob.nodeSelector -- Node labels for scheduled worker pod assignment
+  nodeSelector: {}
+  # hookInstallJob.tolerations -- Tolerations for server pod assignment
+  tolerations: []
+  # hookInstallJob.affinity -- Affinity for scheduled worker pod assignment
+  affinity: {}
+  # hookInstallJob.podAnnotations -- Annotations for scheduled worker pod assignment
+  podAnnotations: {}
+
+## Configuration values for the MySQL dependency. This mysql instance is used by default for all placeless state storage [ref](https://github.com/bitnami/charts/blob/main/bitnami/mysql/README.md)
+mysql:
+  # mysql.enabled -- Whether to deploy a MySQL server to satisfy the applications database requirements. To use an external MySQL set this to false and configure the externalmysql parameter.
+  enabled: true
+  image:
+    # mysql.image.tag
+   # tag: "8.0.32"
+  auth:
+    # mysql.auth.username -- mysql username for placeless user (when mysql chart enabled)
+    username: placeless
+    # mysql.auth.password -- REQUIRED: mysql password for placeless user (when mysql chart enabled)
+    password: "placeless"
+    # mysql.auth.createDatabase -- Whether to create the .Values.auth.database or not
+    createDatabase: true
+    # mysql.auth.database Name -- for a custom database to create
+    database: "placeless"
+  # MySQL Primary parameters
+  primary:
+    # mysql.primary.podAnnotations -- Additional pod annotations for MySQL primary pods
+    podAnnotations: {}
+    # mysql.primary.affinity -- Affinity for MySQL primary pods assignment
+    affinity: {}
+    # mysql.primary.nodeSelector -- Node labels for MySQL primary pods assignment
+    nodeSelector: {}
+    # mysql.primary.tolerations -- Tolerations for MySQL primary pods assignment
+    tolerations: []
+    # mysql.primary.resources -- MySQL primary container's resource requests and limits
+    resources: {}
+    # mysql.primary.service -- MySQL Primary Service parameters
+    service:
+      type: ClusterIP
+      ports:
+        mysql: 3306
+      annotations: {}
+    persistence:
+      # mysql.primary.persistence.enabled -- Use a PVC to persist mysql data (when mysql chart enabled)
+      enabled: true
+      # mysql.primary.persistence.storageClass -- Storage Class for mysql backing PVC. If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner.  (gp2 on AWS, standard on GKE, AWS & OpenStack).
+      storageClass: ""
+      # mysql.primary.persistence.accessMode -- Use mysql volume as ReadOnly or ReadWrite
+      accessMode: ReadWriteOnce
+      # mysql.primary.persistence.size -- PVC Storage Request size for mysql volume
+      size: 10Gi
+
+# externalMySQL – External MySQL configuration. To use an external MySQL instead of the automatically deployed MySQL chart:
+#  set MySQL.enabled to false then uncomment and configure externalMySQL
+externalMySQL: {}
+#  hostname: localhost
+#  username: placeless
+#  password: ""
+#  database: placeless
+#  port: 3306
+
